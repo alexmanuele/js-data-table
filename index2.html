@@ -248,8 +248,13 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
  }
 
 // Search Function
+// Func will search against the following fields:
+// gene_symbol, gene_name, drug_class, antimicrobial_agent, resistance_mechanism.
+// For all possible fields, see https://github.com/pha4ge/hAMRonization/blob/master/hAMRonization/hAMRonizedResult.py#L23
 function geneSearch() {
   // Declare variables
+  var queryTargets =['gene_symbol', 'gene_name', 'drug_class', 'antimicrobial_agent', 'resistance_mechanism'];
+
   var input = document.getElementById("gene-search");
   var filter = input.value.toUpperCase();
   //var table = document.getElementById("results-table");
@@ -288,7 +293,14 @@ function geneSearch() {
       if (results.length > 0){
         //check if any result matches the query
         for (var k=0; k < results.length; k++){
-          var txtValue = results[k].textContent || results[k].innerText;
+          //var txtValue = results[k].textContent || results[k].innerText;
+          var hamr = JSON.parse(results[k].getAttribute('hamronized_result'));
+          var txtValue = "";
+          for (const [key, value] of Object.entries(hamr)){
+            if (queryTargets.includes(key) && value != "null"){
+              txtValue += value+" ";
+            }
+          }
           //console.log(txtValue);
           var parentList = results[k].parentElement;
 
