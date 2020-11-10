@@ -58,7 +58,7 @@
     </div>
 
     </nav>
-    <div class="container-flex bg-light">
+    <div class="container-flex">
       <div class="row">
         <div class="col col-lg-9 col-md-12" id="dynamic-table">
             <!--<input type='button' onclick='CreateTableFromJSON()' value='make table'/>-->
@@ -98,7 +98,7 @@
                 </ul>
                 <div class="row">
                   <div class="col-6">
-                    <button type="button" class="btn btn-info btn-block selection-button" disabled>Compare</button>
+                    <button type="button" class="btn btn-info btn-block selection-button" onclick="displayAmrData()" disabled>Compare</button>
                   </div>
                   <div class="col-6">
                     <button type="button" class="btn btn-warning btn-block selection-button" onclick="clearSelected()" disabled>Clear</button>
@@ -109,11 +109,13 @@
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="container" id="data-display">
-        </div>
-     </div>
    </div>
+   <div class="container-flex phage-blue-light">
+     <div class="row bg-light">
+       <div class="container" id="data-display">
+       </div>
+     </div>
+  </div>
  <!-- JavaScript -->
  <script type='text/javascript'>
 //parse JSON
@@ -332,6 +334,85 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
    divContainer.appendChild(list);
  }
  */
+ function displayAmrData(){
+   var selectedGenes = document.getElementsByClassName('selected');
+   var genomes = document.getElementsByClassName('genome-row');
+   var tools = document.getElementsByClassName('tool-column');
+
+   //identify the full set of keys
+   function unite() {
+       return [].concat.apply([], arguments).filter(function(elem, index, self) {
+           return self.indexOf(elem) === index;
+       });
+   }
+    var allKeys = [];
+    for (var i=0; i<selectedGenes.length; i++){
+      var hamr = JSON.parse(selectedGenes[i].getAttribute("hamronized_result"));
+      for (const [key, value] of Object.entries(hamr)){
+        allKeys.push(key);
+      }
+    }
+    var uniqueKeys = unite(allKeys);
+    //build the table. Columns are selected genes, rows are data keys.
+    var table= document.createElement("table");
+    table.setAttribute("class", "table table-striped table-hover");
+    //make table header row. The row will be comprised of cards indicating the selections
+    var tr = table.insertRow(-1);
+    //insert a blank header cell for rows
+    var thEmpty = document.createElement("th");
+    thEmpty.innerHTML="";
+    tr.appendChild(thEmpty);
+    for (var i=0; i<selectedGenes.length; i++){
+      var geneText = selectedGenes[i].innerText;
+      var genomeText = genomes[parseInt(selectedGenes[i].parentElement.parentElement.dataset.genomeindex)].firstElementChild.innerText
+      var toolText = tools[parseInt(selectedGenes[i].parentElement.parentElement.dataset.toolindex)].innerText
+
+      var th = document.createElement('th');
+      // create the header card.
+      var card = document.createElement("div");
+      card.setAttribute("class","card card-block");
+      var cardHeader = document.createElement("div");
+      cardHeader.setAttribute("class", "card-header");
+      cardHeader.innerText = geneText;
+      card.appendChild(cardHeader);
+      var cardBody = document.createElement("div");
+      cardBody.setAttribute("class","card-body");
+      var genome = document.createElement('p');
+      var tool = document.createElement('p');
+      genome.innerText = genomeText;
+      tool.innerText = toolText;
+      cardBody.appendChild(genome);
+      cardBody.appendChild(tool);
+      card.appendChild(cardBody);
+      th.appendChild(card);
+      tr.appendChild(th);
+    }
+    //add the other data as rows. Row "headers" will be the uniquekeys
+    for (var i=0; i<uniqueKeys.length; i++){
+      tr = table.insertRow(-1);
+      var tableCell = document.createElement("th");
+      tableCell.setAttribute("scope", "row");
+      tableCell.innerHTML = uniqueKeys[i];
+      tr.appendChild(tableCell);
+      for (var j = 0; j<selectedGenes.length; j++){
+        amrData = JSON.parse(selectedGenes[j].getAttribute("hamronized_result"));
+        //console.log(amrData);
+        //console.log(Object.keys(amrData);
+        var tableCell = tr.insertCell(-1);
+        if (Object.keys(amrData).includes(uniqueKeys[i])){
+          tableCell.innerHTML = amrData[uniqueKeys[i]];
+        }
+        else{
+          tableCell.innerHTML = "Not Recorded."
+        }
+        //tr.appendChild(tableCell)
+      }
+    }
+    var divContainer = document.getElementById('data-display');
+    divContainer.innerHTML = "";
+    divContainer.appendChild(table);
+}
+
 // Search Function
 // Func will search against the following fields:
 // gene_symbol, gene_name, drug_class, antimicrobial_agent, resistance_mechanism.
@@ -355,7 +436,7 @@ function geneSearch() {
   var nHits = parseInt(hitsDisplay.innerText);
   var nGenomes = 0; // parseInt(nGenomeDisplay.innerText);
   var nTools = 0; //parseInt(nToolsDisplay.innerText);
-  console.log(nTools);
+  //console.log(nTools);
   var nDiff = 0; //parseInt(nDiffDisplay.innerText);
 
   /* Strategy:
@@ -451,7 +532,7 @@ function geneSearch() {
       }
     }
   }
-  console.log(globalToolHits);
+  //console.log(globalToolHits);
   for (var i=0; i < globalToolHits.length; i++){
     if (globalToolHits[i]==1){
       nTools++;
