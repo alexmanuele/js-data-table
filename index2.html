@@ -1,13 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Example</title>
+    <title>hAMRonized Results</title>
+    <link rel='icon' href="https://pha4ge.org/wp-content/uploads/2020/06/logo-clear.png">
     <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <!-- custom CSS. Must be after botostrap -->
+    <!-- pha4ge dark blue: #1c4f77 -->
+    <!-- pha4ge light blue: #4879a1 -->
     <style>
       .selected{
         background-color: gold;
@@ -22,6 +25,14 @@
         {
           padding:0 15px;
          }
+      .phage-blue{
+        background-color: #1c4f77;
+        color: white;
+      }
+      .phage-blue-light{
+        background-color: #4879a1;
+        color: white;
+      }
     /* custom table bg-colors
     currently broken. TODO make it work... breaks hover.
     .table-striped>tbody>tr:nth-child(even)>td,
@@ -52,24 +63,48 @@
             <!--<input type='button' onclick='CreateTableFromJSON()' value='make table'/>-->
         </div>
         <div class="col">
-        <div class="card">
-            <div class="card-header">
-              "Search Hits"
-            </div>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center">Total hits:<span class="badge badge-primary badge-pill" id="nhits-badge">0</span></li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">Genomes with hits:<span class="badge badge-primary badge-pill" id="ngenomes-badge">0</span></li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">Tools with hits:<span class="badge badge-primary badge-pill" id="ntools-badge">0</span></li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <span data-toggle="tooltip" data-placement="bottom" class="badge badge-dark text-light badge-pill" title="Indicates the number of genomes in which at least one tool found a hit matching the search query, but not all tools did.">
-                    ?
-                  </span>
-                  Differential results:
+          <div class="row">
+            <div class="col">
+              <div class="card">
+                  <div class="card-header phage-blue-light">
+                    Search Hits
+                  </div>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Total hits:<span class="badge badge-primary badge-pill" id="nhits-badge">0</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Genomes with hits:<span class="badge badge-primary badge-pill" id="ngenomes-badge">0</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">Tools with hits:<span class="badge badge-primary badge-pill" id="ntools-badge">0</span></li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <div>
+                        <span data-toggle="tooltip" data-placement="bottom" class="badge badge-dark text-light badge-pill" title="Indicates the number of genomes in which at least one tool found a hit matching the search query, but not all tools did.">
+                          ?
+                        </span>
+                        Differential results:
+                      </div>
+                      <span class="badge badge-primary badge-pill" id="ndiff-badge">0</span>
+                    </li>
+                  </ul>
                 </div>
-                <span class="badge badge-primary badge-pill" id="ndiff-badge">0</span>
-              </li>
-            </ul>
+              </div>
+            </div>
+          <div class="row">
+            <div class="col">
+              <div class="card">
+                <div class="card-header phage-blue-light">
+                  Selected
+                </div>
+                <ul id="selected-genes" class="list-group list-group-flush">
+                  <!--populated by JS -->
+                </ul>
+                <div class="row">
+                  <div class="col-6">
+                    <button type="button" class="btn btn-info btn-block selection-button" disabled>Compare</button>
+                  </div>
+                  <div class="col-6">
+                    <button type="button" class="btn btn-warning btn-block selection-button" onclick="clearSelected()" disabled>Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -141,7 +176,7 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
          var tableCell = tr.insertCell(-1);
          //record the genome and tool index in each cell. allows better searching
          tableCell.setAttribute("data-genomeIndex", i);
-         tableCell.setAttribute("data-toolIndex", j);
+         tableCell.setAttribute("data-toolIndex", j-1); //j-1 bc first column is not a tool.
          //we'll make the list collapsible for better looking table.
          //create a collapse <p> and <button> and add it to the cell
          var numResults = entry.length;
@@ -169,7 +204,7 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
            //var listBullet = document.createElement('li');
            var listBullet = document.createElement("a")
            listBullet.setAttribute("class", "list-group-item list-group-item-action amr_hit");
-           listBullet.setAttribute("href", "#data-display");
+           //listBullet.setAttribute("href", "#data-display");
            // we can use html5 data-attributes to store data on the cells.
            // The data must be type string.
 
@@ -210,10 +245,59 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
    //Now that the table exists, add OnClick listeners to all the dna-gene class objects
    var geneElements = document.getElementsByClassName('amr_hit');
    for (var i = 0; i < geneElements.length; i++){
-     geneElements[i].addEventListener('click', displayAmrData, false);
+     //geneElements[i].addEventListener('click', displayAmrData, false);
+     geneElements[i].addEventListener('click', selectGene, false);
    }
  }
+ //select or deselect.
+ function selectGene(){
+   //select
+   if (!this.classList.contains('selected')){
+     this.classList.add("selected");
+   }
+   else{
+     this.classList.remove("selected")
+   }
+   //update list of selected genes:
+   var allSelected = document.getElementsByClassName("selected");
+   var selectedList = document.createElement("ul");
+   for (var i=0; i < allSelected.length; i++){
+     var listEntry = document.createElement('li');
+     listEntry.setAttribute("class", "list-group-item");
+     var selectedCell = allSelected[i].parentElement.parentElement;
+     var listText = allSelected[i].innerText + " from genome " + selectedCell.dataset.genomeindex + ", tool " + selectedCell.dataset.toolindex;
+     listEntry.innerHTML = listText;
+     selectedList.appendChild(listEntry);
+   }
+   var selectedDisplay = document.getElementById('selected-genes');
+   var buttons = document.getElementsByClassName('selection-button');
+   selectedDisplay.innerHTML = selectedList.innerHTML;
+   if (allSelected.length > 0){
+     for(var i=0; i<buttons.length; i++){
+       buttons[i].removeAttribute("disabled");
+     }
+   }
+   else{
+     for(var i=0; i<buttons.length; i++){
+       buttons[i].setAttribute("disabled", null);
+     }
+   }
+ }
+ //clears the Selected card box.
+ function clearSelected(){
+   var allSelected = document.getElementsByClassName("selected");
+   var cardList = document.getElementById('selected-genes');
+   var buttons = document.getElementsByClassName('selection-button');
+   while(allSelected.length > 0){
+     allSelected[0].classList.remove('selected');
+   }
+   cardList.innerHTML = "";
+   for (var i=0; i<buttons.length; i++){
+     buttons[i].setAttribute("disabled", null);
+   }
 
+ }
+ /*
  //function to display gene data
  function displayAmrData(){
    amr_data = JSON.parse(this.getAttribute('hamronized_result'));
@@ -246,7 +330,7 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
    divContainer.innerHTML = "";
    divContainer.appendChild(list);
  }
-
+ */
 // Search Function
 // Func will search against the following fields:
 // gene_symbol, gene_name, drug_class, antimicrobial_agent, resistance_mechanism.
