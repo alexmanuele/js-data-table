@@ -51,10 +51,11 @@
         <a class="navbar-brand" href="#">
           <img src="https://pha4ge.org/wp-content/uploads/2020/04/logob.png" width="320" height="74" alt="">
         </a>
-        <form class="form-inline my-2 my-lg-0">
+        <div class="form-inline my-2 my-lg-0">
       <input id="gene-search" class="form-control mr-sm-2" onkeyup="geneSearch()" placeholder="Search" aria-label="Search">
-      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-    </form>
+      <button id="results-only" class="btn btn-outline-success my-2 my-sm-0" onclick="showOnlyResults()">Show Only Results</button>
+      <button id="restore-table" class="btn btn-outline-primary my-2 my-sm-0" onclick="restoreTable()" style="display:none">Restore Results</button>
+    </div>
 
     </nav>
     <div class="container-flex bg-light">
@@ -397,6 +398,7 @@ function geneSearch() {
               //increment the data-hits attribute for the parent list
               parentList.setAttribute('data-hits', parseInt(parentList.getAttribute('data-hits'))+1);
               nHits += 1;
+              genomes[i].dataset.nhits = parseInt(genomes[i].dataset.nhits)+1;
               //highlight the list header
               parentList.previousElementSibling.classList.add('search_hit');
               //expand the list.
@@ -411,11 +413,13 @@ function geneSearch() {
               results[k].classList.remove("search_hit");
               parentList.setAttribute('data-hits', parseInt(parentList.getAttribute('data-hits'))-1);
               nHits -= 1;
+              genomes[i].dataset.nhits = parseInt(genomes[i].dataset.nhits)-1;
               //if there are no hits in the list, un-highlight the list header
               if (parseInt(parentList.getAttribute('data-hits')) == 0){
                 parentList.previousElementSibling.classList.remove('search_hit');
                 parentList.classList.remove("show");
                 toolHitIndex[j] = 0;
+
               }
             }
           }
@@ -460,7 +464,27 @@ function geneSearch() {
   nDiffDisplay.innerText = nDiff;
 
 }
-
+//hides table rows with no results.
+function showOnlyResults(){
+  var genomes = document.getElementsByClassName('genome-row');
+  var restoreButton = document.getElementById('restore-table');
+  for (var i=0; i < genomes.length; i++){
+    const counts = genomes[i].dataset.nhits;
+    if (counts == 0){
+      genomes[i].style.display = "none";
+    }
+  }
+  restoreButton.style.display="";
+}
+//show the full table after hiding no-results
+function restoreTable(){
+  var genomes = document.getElementsByClassName('genome-row');
+  var restoreButton = document.getElementById('restore-table');
+  for (var i=0; i < genomes.length; i++){
+    genomes[i].style.display="";
+  }
+  restoreButton.style.display="none";
+}
 
      CreateTableFromJSON()
      //initialize tool tips
