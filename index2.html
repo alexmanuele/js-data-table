@@ -60,7 +60,15 @@
               <li class="list-group-item d-flex justify-content-between align-items-center">Total hits:<span class="badge badge-primary badge-pill" id="nhits-badge">0</span></li>
               <li class="list-group-item d-flex justify-content-between align-items-center">Genomes with hits:<span class="badge badge-primary badge-pill" id="ngenomes-badge">0</span></li>
               <li class="list-group-item d-flex justify-content-between align-items-center">Tools with hits:<span class="badge badge-primary badge-pill" id="ntools-badge">0</span></li>
-              <li class="list-group-item d-flex justify-content-between align-items-center"><span data-toggle="tooltip" class="badge badge-dark text-light badge-pill">?</span>Differential results:<span class="badge badge-primary badge-pill" id="ndiff-badge">0</span></li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span data-toggle="tooltip" data-placement="bottom" class="badge badge-dark text-light badge-pill" title="Indicates the number of genomes in which at least one tool found a hit matching the search query, but not all tools did.">
+                    ?
+                  </span>
+                  Differential results:
+                </div>
+                <span class="badge badge-primary badge-pill" id="ndiff-badge">0</span>
+              </li>
             </ul>
           </div>
         </div>
@@ -359,6 +367,10 @@ function geneSearch() {
 
 
      CreateTableFromJSON()
+     //initialize tool tips
+     $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
     </script>
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
