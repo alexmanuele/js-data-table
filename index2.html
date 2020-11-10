@@ -33,6 +33,10 @@
         background-color: #4879a1;
         color: white;
       }
+      .sticky{
+        position: sticky;;
+        top: 6rem;
+      }
     /* custom table bg-colors
     currently broken. TODO make it work... breaks hover.
     .table-striped>tbody>tr:nth-child(even)>td,
@@ -64,29 +68,31 @@
             <!--<input type='button' onclick='CreateTableFromJSON()' value='make table'/>-->
         </div>
         <div class="col">
-          <div class="row">
-            <div class="col">
-              <div class="card">
-                  <div class="card-header phage-blue-light">
-                    Search Hits
+          <div class="sticky">
+            <div class="row">
+              <div class="col">
+                <div class="card">
+                    <div class="card-header phage-blue-light">
+                      Search Results
+                    </div>
+                    <ul class="list-group list-group-flush">
+                      <li class="list-group-item d-flex justify-content-between align-items-center">Total hits:<span class="badge badge-primary badge-pill" id="nhits-badge">0</span></li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">Genomes with hits:<span class="badge badge-primary badge-pill" id="ngenomes-badge">0</span></li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">Tools with hits:<span class="badge badge-primary badge-pill" id="ntools-badge">0</span></li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                          <span data-toggle="tooltip" data-placement="bottom" class="badge badge-dark text-light badge-pill" title="Indicates the number of genomes in which at least one tool found a hit matching the search query, but not all tools did.">
+                            ?
+                          </span>
+                          Differential results:
+                        </div>
+                        <span class="badge badge-primary badge-pill" id="ndiff-badge">0</span>
+                      </li>
+                    </ul>
                   </div>
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex justify-content-between align-items-center">Total hits:<span class="badge badge-primary badge-pill" id="nhits-badge">0</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">Genomes with hits:<span class="badge badge-primary badge-pill" id="ngenomes-badge">0</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">Tools with hits:<span class="badge badge-primary badge-pill" id="ntools-badge">0</span></li>
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                      <div>
-                        <span data-toggle="tooltip" data-placement="bottom" class="badge badge-dark text-light badge-pill" title="Indicates the number of genomes in which at least one tool found a hit matching the search query, but not all tools did.">
-                          ?
-                        </span>
-                        Differential results:
-                      </div>
-                      <span class="badge badge-primary badge-pill" id="ndiff-badge">0</span>
-                    </li>
-                  </ul>
                 </div>
               </div>
-            </div>
+
           <div class="row">
             <div class="col">
               <div class="card">
@@ -108,9 +114,10 @@
             </div>
           </div>
         </div>
+        </div>
       </div>
    </div>
-   <div class="container-flex phage-blue-light">
+   <div id="select-container" class="container-flex phage-blue-light">
      <div class="row bg-light">
        <div class="container" id="data-display">
        </div>
@@ -298,7 +305,8 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
    for (var i=0; i<buttons.length; i++){
      buttons[i].setAttribute("disabled", null);
    }
-
+   var tableDiv = document.getElementById('data-display');
+   tableDiv.innetHTML = "";
  }
  /*
  //function to display gene data
@@ -411,6 +419,15 @@ var hamronized_data = JSON.parse('[{"input_file_name": "ERR873305", "abricate: c
     var divContainer = document.getElementById('data-display');
     divContainer.innerHTML = "";
     divContainer.appendChild(table);
+    //scroll to the result, offset by navbar height
+    var scrollTo = document.getElementById('select-container');
+    scrollTo.scrollIntoView(true);
+    var scrolledY = window.scrollY;
+    var navHeight = 85;
+    if (scrolledY){
+      window.scroll(0, scrolledY - navHeight);
+    }
+
 }
 
 // Search Function
